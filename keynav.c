@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <compiz.h>
+#include <compiz-core.h>
 
 #define SCAN_DOWN  0
 #define SCAN_LEFT  1
@@ -11,7 +11,7 @@ static int keynavDisplayPrivateIndex;
 static CompMetadata keynavMetadata;
 
 #define KEYNAV_DISPLAY(display) \
-    (KeynavDisplay) display->privates[keynavDisplayPrivateIndex].ptr
+    (KeynavDisplay *) (display)->base.privates[keynavDisplayPrivateIndex].ptr
 
 typedef enum {
     DOWN_KEY,
@@ -19,13 +19,6 @@ typedef enum {
     RIGHT_KEY,
     UP_KEY
 } FocusDirectionKeys;
-
-static const CompMetadataOptionInfo keynavOptionInfo[] = {
-    { "keynav_focus_down",  "key", 0, keynavFocusDown,  0 },
-    { "keynav_focus_left",  "key", 0, keynavFocusLeft,  0 },
-    { "keynav_focus_right", "key", 0, keynavFocusRight, 0 },
-    { "keynav_focus_up",    "key", 0, keynavFocusUp,    0 },
-};
 
 typedef struct _KeynavDisplay {
     int privateIndex;
@@ -37,7 +30,7 @@ typedef struct _KeynavDisplay {
                     upKey;
 } KeynavDisplay;
 
-int getDistance (int direction, int start, CompWindow window) {
+int getDistance (int direction, int start, CompWindow *window) {
     switch (direction) {
         case SCAN_RIGHT:
             return window->serverX - start;
@@ -50,7 +43,7 @@ int getDistance (int direction, int start, CompWindow window) {
     }
 }
 
-int getStartPoint (int direction, CompWindow window) {
+int getStartPoint (int direction, CompWindow *window) {
     switch (direction) {
         case SCAN_RIGHT:
             return window->serverX + window->serverWidth;
@@ -63,7 +56,7 @@ int getStartPoint (int direction, CompWindow window) {
     }
 }
 
-Bool isFocusableWindow (CompWindow window) {
+Bool isFocusableWindow (CompWindow *window) {
     if (window->attrib.override_redirect) {
         return FALSE;
     }
@@ -84,7 +77,7 @@ Bool isFocusableWindow (CompWindow window) {
 }
 
 static Bool sendFocus (CompDisplay *display, int direction) {
-    int i = 0, selectedDistance = 0, start = 0;
+    int i = 0, distance, selectedDistance = 0, start = 0;
     CompScreen *screen;
     CompWindow *activeWindow;
     CompWindow *selectedWindow = NULL;
@@ -140,6 +133,14 @@ keynavFocusUp (CompDisplay *display, CompAction *action, CompActionState state,
     return sendFocus(display, SCAN_UP);
 }
 
+static const CompMetadataOptionInfo keynavOptionInfo[] = {
+    { "keynav_focus_down",  "key", 0, keynavFocusDown,  0 },
+    { "keynav_focus_left",  "key", 0, keynavFocusLeft,  0 },
+    { "keynav_focus_right", "key", 0, keynavFocusRight, 0 },
+    { "keynav_focus_up",    "key", 0, keynavFocusUp,    0 },
+};
+
+
 static Bool
 keynavInitDisplay (CompPlugin *plugin, CompDisplay *display) {
     KeynavDisplay *keynavDisplay;
@@ -156,8 +157,8 @@ keynavInitDisplay (CompPlugin *plugin, CompDisplay *display) {
 
     keynavDisplayPrivateIndex = allocateDisplayPrivateIndex();
     
-    if (scaleDisplayPrivateIndex < 0) {
-	compFiniMetadata (&scaleMetadata);
+    if (keynavDisplayPrivateIndex < 0) {
+	compFiniMetadata (&keynavMetadata);
 	return FALSE;
     }
 
@@ -179,11 +180,13 @@ keynavInitDisplay (CompPlugin *plugin, CompDisplay *display) {
     keynavDisplay->upKey    = XKeysymToKeycode(display->display,
             XStringToKeysym("Up"));
 
+    display->base.privates[keynavDisplayPrivateIndex].ptr = keynavDisplay;
+
     return TRUE;
 }
 
 static Bool
-keynavInit (CompPlugin *p, CompObject *o)
+keynavInitObject (CompPlugin *p, CompObject *o)
 {
     static InitPluginObjectProc dispTab[] = {
 	(InitPluginObjectProc) 0, /* InitCore */
@@ -203,7 +206,7 @@ static void keynavFiniDisplay (CompPlugin *p, CompDisplay *d) {
 }
 
 static void
-keynavFini (CompPlugin *p,
+keynavFiniObject (CompPlugin *p,
             CompObject *o)
 {
     static FiniPluginObjectProc dispTab[] = {
@@ -220,7 +223,7 @@ static int
 keynavGetVersion (CompPlugin *plugin,
 		    int	       version)
 {
-    return ABIVERSION;
+    return CORE_ABIVERSION;
 }
 
 static CompMetadata * keynavGetMetadata (CompPlugin *plugin) {
@@ -241,7 +244,7 @@ keynavSetDisplayOption (CompPlugin      *plugin,
             name, &index);
 
     if (option) {
-        return compSetDisplayOption(display, option, value)
+        return compSetDisplayOption(display, option, value);
     }
 
     return FALSE;
@@ -268,7 +271,7 @@ keynavGetDisplayOptions (CompPlugin *plugin, CompDisplay *display, int *count)
 {
     KeynavDisplay *keynavDisplay = KEYNAV_DISPLAY(display);
 
-    *count = KEYNAV_DISPLAY_OPTION_COUNT
+    *count = KEYNAV_DISPLAY_OPTION_COUNT;
 
     return keynavDisplay->options;
 }
@@ -289,10 +292,10 @@ keynavGetObjectOptions (CompPlugin *plugin, CompObject *object, int *count)
 static CompPluginVTable keynavVTable = {
     "keynav",
     keynavGetMetadata,
-    keynavInit,
-    keynavFini,
-    keynavInitDisplay,
-    keynavFiniDisplay,
+    0,
+    0,
+    keynavInitObject,
+    keynavFiniObject,
     keynavGetObjectOptions,
     keynavSetObjectOption
 };
