@@ -34,12 +34,12 @@ typedef struct _KeynavDisplay {
 
 int getDistance (int direction, int start, CompWindow *window) {
     switch (direction) {
+        case SCAN_LEFT:
+            return start - window->serverX;
         case SCAN_RIGHT:
             return window->serverX - start;
-        case SCAN_LEFT:
-            return (window->serverX + window->serverWidth) - start;
         case SCAN_UP:
-            return (window->serverY + window->serverHeight) - start;
+            return start - window->serverY;
         case SCAN_DOWN:
             return window->serverY - start;
     }
@@ -48,13 +48,11 @@ int getDistance (int direction, int start, CompWindow *window) {
 int getStartPoint (int direction, CompWindow *window) {
     switch (direction) {
         case SCAN_RIGHT:
-            return window->serverX + window->serverWidth;
         case SCAN_LEFT:
             return window->serverX;
         case SCAN_UP:
-            return window->serverY;
         case SCAN_DOWN:
-            return window->serverY + window->serverHeight;
+            return window->serverY;
     }
 }
 
