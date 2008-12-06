@@ -7,3 +7,9 @@ INCLUDES = @COMPIZ_CFLAGS@
 moduledir = $(plugindir)
 
 module_LTLIBRARIES = libkeynav.la
+
+XML_FILES = keynav.xml
+EDTRA_DIST = $(XML_FILES)
+
+config_DATA = $(XML_FILES)
+configdir = $(datadir)/compiz

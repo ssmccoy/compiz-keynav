@@ -101,10 +101,8 @@ static Bool sendFocus (CompDisplay *display, int direction) {
         }
 
         if (selectedWindow != NULL) {
-            raiseWindow(selectedWindow);
-            focusWindow(selectedWindow);
-
-            return TRUE;
+            if ((selectedWindow->screen->focusWindow)(selectedWindow))
+                return TRUE;
         }
     }
 
@@ -161,7 +159,6 @@ keynavInitDisplay (CompPlugin *plugin, CompDisplay *display) {
 	compFiniMetadata (&keynavMetadata);
 	return FALSE;
     }
-
 
     if (!compInitDisplayOptionsFromMetadata(display,
                 &keynavMetadata, keynavOptionInfo, keynavDisplay->options,
@@ -289,11 +286,27 @@ keynavGetObjectOptions (CompPlugin *plugin, CompObject *object, int *count)
                      (void *) (*count = 0), (plugin, object, count));
 }
 
+static Bool keynavInit (CompPlugin *plugin) {
+    if (!compInitPluginMetadataFromInfo(&keynavMetadata,
+                plugin->vTable->name, 0, 0,
+                keynavOptionInfo,
+                KEYNAV_DISPLAY_OPTION_COUNT))
+        return FALSE;
+
+    compAddMetadataFromFile(&keynavMetadata, plugin->vTable->name);
+
+    return TRUE;
+}
+
+static void keynavFini (CompPlugin *plugin) {
+    compFiniMetadata(&keynavMetadata);
+}
+
 static CompPluginVTable keynavVTable = {
     "keynav",
     keynavGetMetadata,
-    0,
-    0,
+    keynavInit,
+    keynavFini,
     keynavInitObject,
     keynavFiniObject,
     keynavGetObjectOptions,
@@ -304,4 +317,10 @@ CompPluginVTable *
 getCompPluginInfo (void)
 {
     return &keynavVTable;
+}
+
+CompPluginVTable *
+getCompPluginInfo20070830 (void)
+{
+    return getCompPluginInfo();
 }

@@ -24,4 +24,11 @@ PKG_CHECK_MODULES(COMPIZ, compiz)
 plugindir=`pkg-config --variable=libdir compiz`/compiz
 AC_SUBST(plugindir)
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([
+Makefile
+metadata/Makefile
+])
+
+metadatadir=$datadir/compiz
+AC_SUBST(metadatadir)
+
