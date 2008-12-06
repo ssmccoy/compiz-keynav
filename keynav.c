@@ -104,12 +104,23 @@ Bool withinBound (int direction, CompWindow *active, CompWindow *window) {
     return ((windowRangeStart >= activeRangeStart &&
              windowRangeStart <= activeRangeEnd) ||
             (windowRangeEnd >= activeRangeStart &&
-             windowRangeEnd <= activeRangeEnd));
+             windowRangeEnd <= activeRangeEnd)) ||
+           ((activeRangeStart >= windowRangeStart &&
+             activeRangeStart <= windowRangeEnd) ||
+            (activeRangeEnd >= windowRangeStart &&
+             activeRangeEnd <= windowRangeEnd));
 }
+
+#define EXACT_AREA_MATCH(active, window) \
+   (active->serverX      == window->serverX && \
+    active->serverY      == window->serverY && \
+    active->serverWidth  == window->serverWidth && \
+    active->serverHeight == window->serverHeight)
 
 static Bool sendFocus (CompDisplay *display, CompOption *option, int nOption,
         int direction) {
     int i = 0, distance, selectedDistance, start = 0;
+    Bool seen = FALSE;
     CompScreen *screen;
     CompWindow *activeWindow;
     CompWindow *selectedWindow = NULL;
@@ -131,9 +142,12 @@ static Bool sendFocus (CompDisplay *display, CompOption *option, int nOption,
         start = getStartPoint(direction, activeWindow);
 
         for (window = screen->windows; window != NULL; window = window->next) {
+            if (window == activeWindow) {
+                seen = TRUE;
+                continue;
+            }
 
-            if (window != activeWindow && 
-                isFocusableWindow(window) &&
+            if (isFocusableWindow(window) &&
                 withinBound(direction, activeWindow, window)) 
             {
                 distance = getDistance(direction, start, window);
