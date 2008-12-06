@@ -3,6 +3,7 @@
     <plugin name="keynav">
         <short>Keyboard Navigation</short>
         <long>Extended Keyboard Window Navigation</long>
+        <category>Window Management</category>
         <display>
             <option type="key" name="keynav_focus_down">
                 <short>Focus Below</short>

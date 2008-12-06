@@ -90,6 +90,7 @@ Bool withinBound (int direction, CompWindow *active, CompWindow *window) {
 
             windowRangeStart = window->serverY;
             windowRangeEnd   = window->serverY + window->serverHeight;
+            break;
 
         case SCAN_UP:
         case SCAN_DOWN:
