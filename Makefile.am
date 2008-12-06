@@ -1,9 +1,9 @@
-libstandard_la_LDFLAGS = -module -avoid-version -no-undefined
-libstandard_la_LIBADD = @COMPIZ_LIBS@
-libstandard_la_SOURCES = standard.c
+libkeynav_la_LDFLAGS = -module -avoid-version -no-undefined
+libkeynav_la_LIBADD = @COMPIZ_LIBS@
+libkeynav_la_SOURCES = keynav.c
 
 INCLUDES = @COMPIZ_CFLAGS@
 
 moduledir = $(plugindir)
 
-module_LTLIBRARIES = libstandard.la
+module_LTLIBRARIES = libkeynav.la
