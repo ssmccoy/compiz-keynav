@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <compiz-core.h>
 
+#define DEBUG(message) fprintf(stderr, "%s\n", message)
+
 #define SCAN_DOWN  0
 #define SCAN_LEFT  1
 #define SCAN_RIGHT 2
@@ -69,28 +71,72 @@ Bool isFocusableWindow (CompWindow *window) {
     if (window->state & CompWindowStateShadedMask) {
         return FALSE;
     }
-    if (window->mapNum || window->attrib.map_state != IsViewable) {
+    if (window->attrib.map_state != IsViewable) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static Bool sendFocus (CompDisplay *display, int direction) {
-    int i = 0, distance, selectedDistance = 0, start = 0;
+Bool withinBound (int direction, CompWindow *active, CompWindow *window) {
+    int activeRangeStart = 0,
+        activeRangeEnd   = 0,
+        windowRangeStart = 0,
+        windowRangeEnd   = 0;
+
+    switch (direction) {
+        case SCAN_LEFT:
+        case SCAN_RIGHT:
+            activeRangeStart = active->serverY;
+            activeRangeEnd   = active->serverY + active->serverHeight;
+
+            windowRangeStart = window->serverY;
+            windowRangeEnd   = window->serverY + window->serverHeight;
+
+        case SCAN_UP:
+        case SCAN_DOWN:
+            activeRangeStart = active->serverX;
+            activeRangeEnd   = active->serverX + active->serverWidth;
+
+            windowRangeStart = window->serverX;
+            windowRangeEnd   = window->serverX + window->serverWidth;
+    }
+
+    return ((windowRangeStart >= activeRangeStart &&
+             windowRangeStart <= activeRangeEnd) ||
+            (windowRangeEnd >= activeRangeStart &&
+             windowRangeEnd <= activeRangeEnd));
+}
+
+static Bool sendFocus (CompDisplay *display, CompOption *option, int nOption,
+        int direction) {
+    int i = 0, distance, selectedDistance, start = 0;
     CompScreen *screen;
     CompWindow *activeWindow;
     CompWindow *selectedWindow = NULL;
     CompWindow *window;
 
-    screen = findScreenAtDisplay(display, display->activeWindow);
-    activeWindow = findWindowAtDisplay(display, display->activeWindow);
+    Window xid = getIntOptionNamed(option, nOption, "root", 0);
+
+    screen = findScreenAtDisplay(display, xid);
+
+    if (!screen) {
+        return FALSE;
+    }
+
+    selectedDistance = screen->width;
+
+    activeWindow = findWindowAtScreen(screen, display->activeWindow);
 
     if (activeWindow) {
         start = getStartPoint(direction, activeWindow);
 
         for (window = screen->windows; window != NULL; window = window->next) {
-            if (window != activeWindow && isFocusableWindow(window)) {
+
+            if (window != activeWindow && 
+                isFocusableWindow(window) &&
+                withinBound(direction, activeWindow, window)) 
+            {
                 distance = getDistance(direction, start, window);
 
                 if (distance > 0 && distance < selectedDistance) {
@@ -101,34 +147,33 @@ static Bool sendFocus (CompDisplay *display, int direction) {
         }
 
         if (selectedWindow != NULL) {
-            if ((selectedWindow->screen->focusWindow)(selectedWindow))
-                return TRUE;
+            addWindowDamage(selectedWindow);
+            raiseWindow(selectedWindow);
+            moveInputFocusToWindow(selectedWindow);
         }
     }
 
     return FALSE;
 }
 
-static Bool
-keynavFocusDown (CompDisplay *display, CompAction *action, CompActionState state,
-        CompOption *option, int nOption) {
-    return sendFocus(display, SCAN_DOWN);
-}
-static Bool
-keynavFocusLeft (CompDisplay *display, CompAction *action, CompActionState state,
-        CompOption *option, int nOption) {
-    return sendFocus(display, SCAN_LEFT);
-}
-static Bool
-keynavFocusRight (CompDisplay *display, CompAction *action, CompActionState state,
-        CompOption *option, int nOption) {
-    return sendFocus(display, SCAN_RIGHT);
+static Bool keynavFocusDown (CompDisplay *display, CompAction *action,
+        CompActionState state, CompOption *option, int nOption) {
+    return sendFocus(display, option, nOption, SCAN_DOWN);
 }
 
-static Bool
-keynavFocusUp (CompDisplay *display, CompAction *action, CompActionState state,
-        CompOption *option, int nOption) {
-    return sendFocus(display, SCAN_UP);
+static Bool keynavFocusLeft (CompDisplay *display, CompAction *action,
+        CompActionState state, CompOption *option, int nOption) {
+    return sendFocus(display, option, nOption, SCAN_LEFT);
+}
+
+static Bool keynavFocusRight (CompDisplay *display, CompAction *action,
+        CompActionState state, CompOption *option, int nOption) {
+    return sendFocus(display, option, nOption, SCAN_RIGHT);
+}
+
+static Bool keynavFocusUp (CompDisplay *display, CompAction *action,
+        CompActionState state, CompOption *option, int nOption) {
+    return sendFocus(display, option, nOption, SCAN_UP);
 }
 
 static const CompMetadataOptionInfo keynavOptionInfo[] = {
