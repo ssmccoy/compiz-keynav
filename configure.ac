@@ -1,6 +1,6 @@
 AC_PREREQ(2.57)
 
-AC_INIT([standard], [0.0.0], [author])
+AC_INIT([keynav], [0.0.1], [Scott S. McCoy])
 
 AC_CONFIG_AUX_DIR(config)
 
