@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <compiz-core.h>
+#include "keynav_options.h"
 
 #define DEBUG(message) fprintf(stderr, "%s\n", message)
 
@@ -119,7 +120,7 @@ Bool withinBound (int direction, CompWindow *active, CompWindow *window) {
 
 static Bool sendFocus (CompDisplay *display, CompOption *option, int nOption,
         int direction) {
-    int i = 0, distance, selectedDistance, start = 0;
+    int distance, selectedDistance, start = 0;
     Bool seen = FALSE;
     CompScreen *screen;
     CompWindow *activeWindow;
@@ -370,15 +371,3 @@ static CompPluginVTable keynavVTable = {
     keynavGetObjectOptions,
     keynavSetObjectOption
 };
-
-CompPluginVTable *
-getCompPluginInfo (void)
-{
-    return &keynavVTable;
-}
-
-CompPluginVTable *
-getCompPluginInfo20070830 (void)
-{
-    return getCompPluginInfo();
-}

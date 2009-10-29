@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <compiz>
-    <plugin name="keynav">
-        <short>Keyboard Navigation</short>
-        <long>Extended Keyboard Window Navigation</long>
+    <plugin name="keynav" useBcop="true">
+        <_short>Keyboard Navigation</_short>
+        <_long>Extended Keyboard Window Navigation</_long>
         <category>Window Management</category>
         <display>
             <option type="key" name="keynav_focus_down">
-                <short>Focus Below</short>
-                <long>Focus on the window directly below the currently focused
-                window</long>
+                <_short>Focus Below</_short>
+                <_long>Focus on the window directly below the currently focused
+                window</_long>
                 <default>&lt;Super&gt;Down</default>
             </option>
             <option type="key" name="keynav_focus_left">
-                <short>Focus Left</short>
-                <long>Focus on the window directly to the left of the currently
-                focused window</long>
+                <_short>Focus Left</_short>
+                <_long>Focus on the window directly to the left of the currently
+                focused window</_long>
                 <default>&lt;Super&gt;Left</default>
             </option>
             <option type="key" name="keynav_focus_right">
-                <short>Focus Right</short>
-                <long>Focus on the window directly to the right of the
-                currently focused window</long>
+                <_short>Focus Right</_short>
+                <_long>Focus on the window directly to the right of the
+                currently focused window</_long>
                 <default>&lt;Super&gt;Right</default>
             </option>
             <option type="key" name="keynav_focus_up">
-                <short>Focus Below</short>
-                <long>Focus on the window directly above the currently focused
-                window</long>
+                <_short>Focus Below</_short>
+                <_long>Focus on the window directly above the currently focused
+                window</_long>
                 <default>&lt;Super&gt;Up</default>
             </option>
         </display>
