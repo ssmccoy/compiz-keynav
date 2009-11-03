@@ -11,7 +11,6 @@
 #define KEYNAV_DISPLAY_OPTION_COUNT 4
 
 static int keynavDisplayPrivateIndex;
-static CompMetadata keynavMetadata;
 
 #define KEYNAV_DISPLAY(display) \
     (KeynavDisplay *) (display)->base.privates[keynavDisplayPrivateIndex].ptr
@@ -190,53 +189,16 @@ static Bool keynavFocusUp (CompDisplay *display, CompAction *action,
     return sendFocus(display, option, nOption, SCAN_UP);
 }
 
-static const CompMetadataOptionInfo keynavOptionInfo[] = {
-    { "keynav_focus_down",  "key", 0, keynavFocusDown,  0 },
-    { "keynav_focus_left",  "key", 0, keynavFocusLeft,  0 },
-    { "keynav_focus_right", "key", 0, keynavFocusRight, 0 },
-    { "keynav_focus_up",    "key", 0, keynavFocusUp,    0 },
-};
-
-
 static Bool
 keynavInitDisplay (CompPlugin *plugin, CompDisplay *display) {
-    KeynavDisplay *keynavDisplay;
-
     if (!checkPluginABI ("core", CORE_ABIVERSION)) {
         return FALSE;
     }
 
-    keynavDisplay = malloc(sizeof *keynavDisplay);
-
-    if (!keynavDisplay) {
-        return FALSE;
-    }
-
-    keynavDisplayPrivateIndex = allocateDisplayPrivateIndex();
-    
-    if (keynavDisplayPrivateIndex < 0) {
-	compFiniMetadata (&keynavMetadata);
-	return FALSE;
-    }
-
-    if (!compInitDisplayOptionsFromMetadata(display,
-                &keynavMetadata, keynavOptionInfo, keynavDisplay->options,
-                KEYNAV_DISPLAY_OPTION_COUNT)) {
-        free(keynavDisplay);
-
-        return FALSE;
-    }
-
-    keynavDisplay->downKey  = XKeysymToKeycode(display->display,
-            XStringToKeysym("Down"));
-    keynavDisplay->leftKey  = XKeysymToKeycode(display->display,
-            XStringToKeysym("Left"));
-    keynavDisplay->rightKey = XKeysymToKeycode(display->display,
-            XStringToKeysym("Right"));
-    keynavDisplay->upKey    = XKeysymToKeycode(display->display,
-            XStringToKeysym("Up"));
-
-    display->base.privates[keynavDisplayPrivateIndex].ptr = keynavDisplay;
+    keynavSetKeynavFocusUpInitiate(    display, keynavFocusUp    );
+    keynavSetKeynavFocusDownInitiate(  display, keynavFocusDown  );
+    keynavSetKeynavFocusLeftInitiate(  display, keynavFocusLeft  );
+    keynavSetKeynavFocusRightInitiate( display, keynavFocusRight );
 
     return TRUE;
 }
@@ -255,19 +217,17 @@ keynavInitObject (CompPlugin *p, CompObject *o)
 }
 
 static void keynavFiniDisplay (CompPlugin *p, CompDisplay *d) {
-    if (keynavDisplayPrivateIndex >= 0)
-        freeDisplayPrivateIndex(keynavDisplayPrivateIndex);
-
-    compFiniMetadata(&keynavMetadata);
 }
 
 static void
 keynavFiniObject (CompPlugin *p,
             CompObject *o)
 {
+    /* Yes, do nothing!  All I did was register some event handlers, I keep no
+     * state at all... */
     static FiniPluginObjectProc dispTab[] = {
-	(FiniPluginObjectProc) 0, /* FiniCore */
-	(FiniPluginObjectProc) keynavFiniDisplay, 
+	0, /* FiniCore */
+	0, 
 	0, 
 	0 
     };
@@ -282,92 +242,29 @@ keynavGetVersion (CompPlugin *plugin,
     return CORE_ABIVERSION;
 }
 
-static CompMetadata * keynavGetMetadata (CompPlugin *plugin) {
-    return &keynavMetadata;
-}
-
-static Bool
-keynavSetDisplayOption (CompPlugin      *plugin,
-                        CompDisplay     *display,
-                        const char      *name,
-                        CompOptionValue *value)
-{
-    int index;
-    CompOption *option;
-    KeynavDisplay *keynavDisplay = KEYNAV_DISPLAY(display);
-
-    option = compFindOption(keynavDisplay->options, KEYNAV_DISPLAY_OPTION_COUNT,
-            name, &index);
-
-    if (option) {
-        return compSetDisplayOption(display, option, value);
-    }
-
-    return FALSE;
-}
-
-static Bool
-keynavSetObjectOption (CompPlugin      *plugin,
-		      CompObject      *object,
-		      const char      *name,
-		      CompOptionValue *value)
-{
-    static SetPluginObjectOptionProc dispTab[] = {
-	(SetPluginObjectOptionProc) 0, /* SetCoreOption */
-	(SetPluginObjectOptionProc) keynavSetDisplayOption,
-	(SetPluginObjectOptionProc) 0
-    };
-
-    RETURN_DISPATCH (object, dispTab, ARRAY_SIZE (dispTab), FALSE,
-		     (plugin, object, name, value));
-}
-
-static CompOption *
-keynavGetDisplayOptions (CompPlugin *plugin, CompDisplay *display, int *count) 
-{
-    KeynavDisplay *keynavDisplay = KEYNAV_DISPLAY(display);
-
-    *count = KEYNAV_DISPLAY_OPTION_COUNT;
-
-    return keynavDisplay->options;
-}
-
-static CompOption *
-keynavGetObjectOptions (CompPlugin *plugin, CompObject *object, int *count)
-{
-    static GetPluginObjectOptionsProc dispTab[] = {
-        (GetPluginObjectOptionsProc) 0, /* GetCoreOptions */
-        (GetPluginObjectOptionsProc) keynavGetDisplayOptions,
-        (GetPluginObjectOptionsProc) 0
-    };
-
-    RETURN_DISPATCH (object, dispTab, ARRAY_SIZE (dispTab),
-                     (void *) (*count = 0), (plugin, object, count));
-}
-
+/* I'm not sure I even need these inits... the initDisplay and initObject
+ * should take care of it...*/
 static Bool keynavInit (CompPlugin *plugin) {
-    if (!compInitPluginMetadataFromInfo(&keynavMetadata,
-                plugin->vTable->name, 0, 0,
-                keynavOptionInfo,
-                KEYNAV_DISPLAY_OPTION_COUNT))
-        return FALSE;
-
-    compAddMetadataFromFile(&keynavMetadata, plugin->vTable->name);
-
     return TRUE;
 }
 
 static void keynavFini (CompPlugin *plugin) {
-    compFiniMetadata(&keynavMetadata);
+    return TRUE;
 }
 
 static CompPluginVTable keynavVTable = {
     "keynav",
-    keynavGetMetadata,
-    keynavInit,
-    keynavFini,
+    0,
+    0,
+    0,
     keynavInitObject,
-    keynavFiniObject,
-    keynavGetObjectOptions,
-    keynavSetObjectOption
+    0,
+    0,
+    0
 };
+
+CompPluginVTable *
+getCompPluginInfo (void)
+{
+    return &keynavVTable;
+}
