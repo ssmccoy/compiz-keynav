@@ -10,11 +10,6 @@
 #define SCAN_UP    4
 #define KEYNAV_DISPLAY_OPTION_COUNT 4
 
-static int keynavDisplayPrivateIndex;
-
-#define KEYNAV_DISPLAY(display) \
-    (KeynavDisplay *) (display)->base.privates[keynavDisplayPrivateIndex].ptr
-
 typedef enum {
     DOWN_KEY,
     LEFT_KEY,
@@ -32,7 +27,7 @@ typedef struct _KeynavDisplay {
                     upKey;
 } KeynavDisplay;
 
-int getDistance (int direction, int start, CompWindow *window) {
+static int getDistance (int direction, int start, CompWindow *window) {
     switch (direction) {
         case SCAN_LEFT:
             return start - window->serverX;
@@ -43,9 +38,12 @@ int getDistance (int direction, int start, CompWindow *window) {
         case SCAN_DOWN:
             return window->serverY - start;
     }
+
+    fprintf(stderr, "Unreachable statement reached");
+    return -1;
 }
 
-int getStartPoint (int direction, CompWindow *window) {
+static int getStartPoint (int direction, CompWindow *window) {
     switch (direction) {
         case SCAN_RIGHT:
         case SCAN_LEFT:
@@ -54,9 +52,12 @@ int getStartPoint (int direction, CompWindow *window) {
         case SCAN_DOWN:
             return window->serverY;
     }
+
+    fprintf(stderr, "Unreachable statement reached");
+    return -1;
 }
 
-Bool isFocusableWindow (CompWindow *window) {
+static Bool isFocusableWindow (CompWindow *window) {
     if (window->attrib.override_redirect) {
         return FALSE;
     }
@@ -76,7 +77,10 @@ Bool isFocusableWindow (CompWindow *window) {
     return TRUE;
 }
 
-Bool withinBound (int direction, CompWindow *active, CompWindow *window) {
+static Bool withinBound (int direction, 
+                         CompWindow *active, 
+                         CompWindow *window)
+{
     int activeRangeStart = 0,
         activeRangeEnd   = 0,
         windowRangeStart = 0,
@@ -214,42 +218,6 @@ keynavInitObject (CompPlugin *p, CompObject *o)
     };
 
     RETURN_DISPATCH (o, dispTab, ARRAY_SIZE (dispTab), TRUE, (p, o));
-}
-
-static void keynavFiniDisplay (CompPlugin *p, CompDisplay *d) {
-}
-
-static void
-keynavFiniObject (CompPlugin *p,
-            CompObject *o)
-{
-    /* Yes, do nothing!  All I did was register some event handlers, I keep no
-     * state at all... */
-    static FiniPluginObjectProc dispTab[] = {
-	0, /* FiniCore */
-	0, 
-	0, 
-	0 
-    };
-
-    DISPATCH (o, dispTab, ARRAY_SIZE (dispTab), (p, o));
-}
-
-static int
-keynavGetVersion (CompPlugin *plugin,
-		    int	       version)
-{
-    return CORE_ABIVERSION;
-}
-
-/* I'm not sure I even need these inits... the initDisplay and initObject
- * should take care of it...*/
-static Bool keynavInit (CompPlugin *plugin) {
-    return TRUE;
-}
-
-static void keynavFini (CompPlugin *plugin) {
-    return TRUE;
 }
 
 static CompPluginVTable keynavVTable = {
