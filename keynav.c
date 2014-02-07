@@ -77,8 +77,8 @@ static Bool isFocusableWindow (CompWindow *window) {
     return TRUE;
 }
 
-static Bool withinBound (int direction, 
-                         CompWindow *active, 
+static Bool withinBound (int direction,
+                         CompWindow *active,
                          CompWindow *window)
 {
     int activeRangeStart = 0,
@@ -152,7 +152,7 @@ static Bool sendFocus (CompDisplay *display, CompOption *option, int nOption,
             }
 
             if (isFocusableWindow(window) &&
-                withinBound(direction, activeWindow, window)) 
+                withinBound(direction, activeWindow, window))
             {
                 distance = getDistance(direction, start, window);
 
@@ -213,8 +213,8 @@ keynavInitObject (CompPlugin *p, CompObject *o)
     static InitPluginObjectProc dispTab[] = {
 	(InitPluginObjectProc) 0, /* InitCore */
 	(InitPluginObjectProc) keynavInitDisplay,
-	0, 
-	0 
+	0,
+	0
     };
 
     RETURN_DISPATCH (o, dispTab, ARRAY_SIZE (dispTab), TRUE, (p, o));
