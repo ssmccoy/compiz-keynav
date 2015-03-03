@@ -1,34 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <compiz>
     <plugin name="keynav" useBcop="true">
-        <_short>Keyboard Navigation</_short>
-        <_long>Extended Keyboard Window Navigation</_long>
+        <_short>Keynav</_short>
+        <_long>Keyboard Focus Navigation</_long>
         <category>Window Management</category>
-        <display>
-            <option type="key" name="keynav_focus_down">
-                <_short>Focus Below</_short>
-                <_long>Focus on the window directly below the currently focused
-                window</_long>
-                <default>&lt;Super&gt;Down</default>
-            </option>
-            <option type="key" name="keynav_focus_left">
-                <_short>Focus Left</_short>
-                <_long>Focus on the window directly to the left of the currently
-                focused window</_long>
-                <default>&lt;Super&gt;Left</default>
-            </option>
-            <option type="key" name="keynav_focus_right">
-                <_short>Focus Right</_short>
-                <_long>Focus on the window directly to the right of the
-                currently focused window</_long>
-                <default>&lt;Super&gt;Right</default>
-            </option>
-            <option type="key" name="keynav_focus_up">
-                <_short>Focus Below</_short>
-                <_long>Focus on the window directly above the currently focused
-                window</_long>
-                <default>&lt;Super&gt;Up</default>
-            </option>
-        </display>
+
+	<options>
+	    <group>
+		<_short>Bindings</_short>
+		<subgroup>
+		    <option type="key" name="keynav_focus_down">
+			<_short>Focus Below</_short>
+			<_long>Focus on the window directly below the currently
+			focused window</_long>
+			<default>&lt;Super&gt;Down</default>
+		    </option>
+		    <option type="key" name="keynav_focus_left">
+			<_short>Focus Left</_short>
+			<_long>Focus on the window directly to the left of the
+			currently focused window</_long>
+			<default>&lt;Super&gt;Left</default>
+		    </option>
+		    <option type="key" name="keynav_focus_right">
+			<_short>Focus Right</_short>
+			<_long>Focus on the window directly to the right of the
+			currently focused window</_long>
+			<default>&lt;Super&gt;Right</default>
+		    </option>
+		    <option type="key" name="keynav_focus_up">
+			<_short>Focus Below</_short>
+			<_long>Focus on the window directly above the currently
+			focused window</_long>
+			<default>&lt;Super&gt;Up</default>
+		    </option>
+		</subgroup>
+	    </group>
+	</options>
     </plugin>
 </compiz>
