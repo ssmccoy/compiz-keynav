@@ -12,39 +12,46 @@ maximized window, you can easily chose which window to focus on without
 considering any other windows or application in that application area.
 
 +-------------------+-------------------+
+| Left Vertical     | Right Top         |
 |                   |                   |
-|   Left Vertical   |     Right Top     |
 |                   |                   |
-|    (Focused)      +-------------------+
+|                   | ``$``             |
+|                   +-------------------+
+|                   | Right Bottom      |
 |                   |                   |
-|                   |    Right Bottom   |
 |                   |                   |
+| ``$ []``          | ``$``             |
 +-------------------+-------------------+
 
 If you desire to focus on the group to right, you can press (for example)
-Super+Right, or, if you wish to send the focus back to the window on the left,
-you can simply press Super+Left.
+``Super+Right``, or, if you wish to send the focus back to the window on the left,
+you can simply press ``Super+Left``.
 
-After pressing Super+Right, your focus will (likely) be:
+After pressing ``Super+Right``, your focus will (likely, though it depends on
+the window stacking whether it's top or bottom) be:
 
 +-------------------+-------------------+
+| Left Vertical     | Right Top         |
 |                   |                   |
-|   Left Vertical   |     Right Top     |
-|                   |     (Focused)     |
+|                   |                   |
+|                   | ``$ []``          |
 |                   +-------------------+
+|                   | Right Bottom      |
 |                   |                   |
-|                   |    Right Bottom   |
 |                   |                   |
+| ``$``             | ``$``             |
 +-------------------+-------------------+
 
-Following this with Super+Down, will result in the following:
+Following this with ``Super+Down``, will result in the following:
 
 +-------------------+-------------------+
+| Left Vertical     | Right Top         |
 |                   |                   |
-|   Left Vertical   |     Right Top     |
 |                   |                   |
+|                   | ``$``             |
 |                   +-------------------+
+|                   | Right Bottom      |
 |                   |                   |
-|                   |    Right Bottom   |
-|                   |     (Focused)     |
+|                   |                   |
+| ``$``             | ``$ []``          |
 +-------------------+-------------------+
