@@ -47,6 +47,7 @@ class KeyboardNavigation :
 		FocusDirection direction;
 
 		int distanceFrom (CompWindow *window);
+                bool lateralCollision (CompWindow *window);
 
 	    public:
 		NearestWindow (CompWindow *window, FocusDirection direction);

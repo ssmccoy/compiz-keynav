@@ -73,6 +73,26 @@ KeyboardNavigation::NearestWindow::distanceFrom (CompWindow *window)
     throw "Illegal State";
 }
 
+bool
+KeyboardNavigation::NearestWindow::lateralCollision (CompWindow *window)
+{
+    CompPoint center ( window->x() + (window->width() / 2),
+                       window->y() + (window->height() / 2) );
+
+    switch (direction) {
+        case FOCUS_UP:
+        case FOCUS_DOWN:
+            return center.x() >= source->x() &&
+                   center.x() <= source->x() + source->width();
+        case FOCUS_LEFT:
+        case FOCUS_RIGHT:
+            return center.y() >= source->y() &&
+                   center.y() <= source->y() + source->height();
+    }
+
+    throw "Illegal State";
+}
+
 void
 KeyboardNavigation::NearestWindow::inspectWindow (CompWindow *window)
 {
@@ -94,6 +114,10 @@ KeyboardNavigation::NearestWindow::inspectWindow (CompWindow *window)
         !window->onCurrentDesktop())
     {
         DEBUG_LOG("Ignoring window " << window->id());
+        return;
+    }
+
+    if (!lateralCollision(window)) {
         return;
     }
 
