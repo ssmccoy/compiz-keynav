@@ -8,8 +8,6 @@
 #define SCAN_UP    4
 #define KEYNAV_DISPLAY_OPTION_COUNT 4
 
-#define DEBUG true
-
 #ifdef DEBUG
 #define DEBUG_LOG(msg) std::cerr << "[keynav] " << msg << std::endl
 #else
@@ -48,12 +46,6 @@ direction(direction)
     DEBUG_LOG("finding window nearest " << window->id() << " " <<
               direction << ": " <<
               window->x() << "x" << window->y());
-
-    /*
-    source    = window;
-    direction = direction;
-    target    = NULL;
-    */
 }
 
 int
