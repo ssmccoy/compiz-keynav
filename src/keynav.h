@@ -16,7 +16,6 @@
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <vector>
 #include <core/core.h>
 #include <core/pluginclasshandler.h>
 #include <composite/composite.h>
@@ -41,9 +40,9 @@ class KeyboardNavigation :
 	 */
 	class NearestWindow {
 	    private:
-                std::vector<CompWindow*> collisions;
 		CompWindow     *source;
 		CompWindow     *target;
+                CompPoint      start;
 		int            targetDistance;
 		FocusDirection direction;
 
