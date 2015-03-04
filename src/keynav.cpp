@@ -177,7 +177,7 @@ KeyboardNavigation::initiate (CompAction         *action,
         CompWindow *focusWindow = nearestWindow.result();
 
         if (focusWindow != NULL) {
-            DEBUG_LOG("Found focusWindow: " << focusWindow->id() << " " << 
+            DEBUG_LOG("Found focusWindow: " << focusWindow->id() << " " <<
                       focusWindow->x() << "x" << focusWindow->y());
 
             focusWindow->moveInputFocusTo();
