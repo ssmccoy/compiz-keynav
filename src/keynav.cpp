@@ -38,6 +38,7 @@ KeyboardNavigation::KeyboardNavigation (CompScreen *screen) :
 
 KeyboardNavigation::NearestWindow::NearestWindow (CompWindow     *window,
                                                   FocusDirection direction) :
+collisions(),
 source(window),
 target(NULL),
 targetDistance(-1),
@@ -53,15 +54,35 @@ KeyboardNavigation::NearestWindow::distanceFrom (CompWindow *window)
 {
     DEBUG_LOG("calculating " << direction << " distance to " << window->id());
 
-    switch (direction) {
-        case FOCUS_DOWN:
-            return window->y() - source->y();
-        case FOCUS_LEFT:
-            return source->x() - window->x();
-        case FOCUS_RIGHT:
-            return window->x() - source->x();
-        case FOCUS_UP:
-            return source->y() - window->y();
+    int distance = ([this, window]() {
+        switch (direction) {
+            case FOCUS_DOWN:
+                return window->y() - source->y();
+            case FOCUS_LEFT:
+                return source->x() - window->x();
+            case FOCUS_RIGHT:
+                return window->x() - source->x();
+            case FOCUS_UP:
+                return source->y() - window->y();
+        }
+
+        throw "Illegal State";
+    })();
+
+    if (distance == 0) {
+        switch (direction) {
+            case FOCUS_DOWN:
+                return window->height() - source->height();
+            case FOCUS_LEFT:
+                return source->width() - window->width();
+            case FOCUS_RIGHT:
+                return window->width() - source->width();
+            case FOCUS_UP:
+                return source->height() - window->height();
+        }
+    }
+    else {
+        return distance;
     }
 
     throw "Illegal State";
@@ -96,7 +117,10 @@ KeyboardNavigation::NearestWindow::inspectWindow (CompWindow *window)
     DEBUG_LOG("Inspected window " << window->id() << " has distance " <<
               distance);
 
-    if (distance >= 0) {
+    if (distance == 0) {
+        collisions.push_back(window);
+    }
+    else if (distance > 0) {
         if (target == NULL) {
             target         = window;
             targetDistance = distance;
@@ -104,6 +128,34 @@ KeyboardNavigation::NearestWindow::inspectWindow (CompWindow *window)
         else if (distance < targetDistance) {
             target         = window;
             targetDistance = distance;
+        }
+        else if (distance == targetDistance) {
+            /* If they're the same distance, prefer the smaller
+             * (proportionately) of the two, or larger, depending on if we're
+             * going right or left.  This is to compliment our "distance"
+             * discrimination above.
+             *
+             * We might want to consider using the centerpoint of the window
+             * instead of all this hokus pokus and special cases.
+             */
+            bool better = [this, window]() {
+                switch (direction) {
+                    case FOCUS_LEFT:
+                        return window->width() > target->width();
+                    case FOCUS_RIGHT:
+                        return window->width() < target->width();
+                    case FOCUS_UP:
+                        return window->height() > target->height();
+                    case FOCUS_DOWN:
+                        return window->height() < target->height();
+                }
+
+                throw "Illegal State";
+            }();
+
+            if (better) {
+                target = window;
+            }
         }
     }
 }
