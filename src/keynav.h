@@ -35,53 +35,53 @@ class KeyboardNavigation :
     public ScreenInterface
 {
     private:
-	/**
-	 * Simple utility to search the window list and find the nearst one.
-	 */
-	class NearestWindow {
-	    private:
-		CompWindow     *source;
-		CompWindow     *target;
+        /**
+         * Simple utility to search the window list and find the nearst one.
+         */
+        class NearestWindow {
+            private:
+                CompWindow     *source;
+                CompWindow     *target;
                 CompPoint      start;
-		int            targetDistance;
-		FocusDirection direction;
+                int            targetDistance;
+                FocusDirection direction;
 
-		int distanceFrom (CompWindow *window);
+                int distanceFrom (CompWindow *window);
                 bool lateralCollision (CompWindow *window);
 
-	    public:
-		NearestWindow (CompWindow *window, FocusDirection direction);
+            public:
+                NearestWindow (CompWindow *window, FocusDirection direction);
 
-		/**
-		 * Inspect the window, and see if it's closer in the given
-		 * direction.
-		 *
-		 * <p>Given a window, check it's coordinates to see if it's
-		 * closer than the present candidate for the closest
-		 * window.  If it is, select it.</p>
-		 *
-		 * @param window The window to inspect.
-		 */
-		void inspectWindow (CompWindow *window);
-		
-		/**
-		 * Return the currently selected closest window.
-		 *
-		 * @return A window, or NULL.
-		 */
-		CompWindow * result (void);
-	};
+                /**
+                 * Inspect the window, and see if it's closer in the given
+                 * direction.
+                 *
+                 * <p>Given a window, check it's coordinates to see if it's
+                 * closer than the present candidate for the closest
+                 * window.  If it is, select it.</p>
+                 *
+                 * @param window The window to inspect.
+                 */
+                void inspectWindow (CompWindow *window);
+                
+                /**
+                 * Return the currently selected closest window.
+                 *
+                 * @return A window, or NULL.
+                 */
+                CompWindow * result (void);
+        };
 
     public:
         KeyboardNavigation (CompScreen *screen);
 
-	/**
-	 * Find the nearest window in the specified direction.
-	 */
+        /**
+         * Find the nearest window in the specified direction.
+         */
         bool initiate (CompAction         *action,
                        CompAction::State  state,
                        CompOption::Vector &option,
-		       FocusDirection	  direction);
+                       FocusDirection          direction);
 };
 
 class KeyboardNavigationVTable :
