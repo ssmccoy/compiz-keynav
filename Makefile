@@ -15,3 +15,7 @@ $(BUILD_DIR): CMakeLists.txt
 
 install: all
 	$(MAKE) -C $(BUILD_DIR) install
+
+
+clean:
+	rm -r $(BUILD_DIR)
