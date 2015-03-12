@@ -93,26 +93,28 @@ KeyboardNavigation::NearestWindow::lateralCollision (CompWindow *window)
     throw "Illegal State";
 }
 
+#define UNDESIRABLE_WINDOW(window, sg) \
+        !window->isFocussable()                                 || \
+        !window->isViewable()                                   || \
+        !window->isMapped()                                     || \
+        window->shaded()                                        || \
+        window->minimized()                                     || \
+        (window->type() & (CompWindowTypeDesktopMask |             \
+                            CompWindowTypeDockMask))            || \
+        (window->state() & CompWindowStateSkipTaskbarMask)      || \
+        (sg.x() + sg.width()  <= 0                              || \
+         sg.y() + sg.height() <= 0                              || \
+         sg.x() >= (int) ::screen->width()                      || \
+         sg.y() >= (int) ::screen->height())                    || \
+        !window->onCurrentDesktop()
+
 void
 KeyboardNavigation::NearestWindow::inspectWindow (CompWindow *window)
 {
     const CompWindow::Geometry &sg = window->serverGeometry();
 
     /* This is a completely unmaintainable expression */
-    if (window->id() == source->id()                            ||
-        !window->isFocussable()                                 ||
-        !window->isViewable()                                   ||
-        !window->isMapped()                                     ||
-        window->shaded()                                        ||
-        (window->type() & (CompWindowTypeDesktopMask |
-                            CompWindowTypeDockMask))            ||
-        (window->state() & CompWindowStateSkipTaskbarMask)      ||
-        (sg.x() + sg.width()  <= 0                              ||
-         sg.y() + sg.height() <= 0                              ||
-         sg.x() >= (int) ::screen->width()                      ||
-         sg.y() >= (int) ::screen->height())                    ||
-        !window->onCurrentDesktop())
-    {
+    if (window->id() == source->id() || UNDESIRABLE_WINDOW(window, sg)) {
         DEBUG_LOG("Ignoring window " << window->id());
         return;
     }
